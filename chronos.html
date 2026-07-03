@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHRONOS | Swiss Luxury Timepieces Since 1905</title>
+  <meta name="description" content="CHRONOS — Swiss luxury wristwatches crafted for generations. Discover our collections of dress, sports, diving, and chronograph timepieces.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Estripe:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand': {
+              'green': '#0B4D36',
+              'green-dark': '#072E20',
+              'green-light': '#1A6B4A',
+              'green-deep': '#051E14',
+              'gold': '#C9A96E',
+              'gold-light': '#D4BA85',
+              'gold-dark': '#A08B55',
+              'gold-muted': '#8B7355',
+              'black': '#0D0D0D',
+              'charcoal': '#1A1A1A',
+              'dark': '#2A2A2A',
+              'gray': '#4A4A4A',
+              'silver': '#B8B8B8',
+              'white': '#FAF8F5',
+              'ivory': '#F0EBE3',
+            }
+          },
+          fontFamily: {
+            'serif': ['"Estripe"', 'sans-serif'],
+            'sans': ['"Estripe"', 'sans-serif'],
+          },
+          letterSpacing: {
+            'ultra': '0.25em',
+            'mega': '0.4em',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Lenis Smooth Scroll -->
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: 'Estripe', sans-serif;
+      background: #0D0D0D;
+      color: #FAF8F5;
+      overflow-x: hidden;
+      cursor: none;
+    }
+    @media (pointer: coarse) { body { cursor: auto; } }
+
+    /* Loader */
+    #loader {
+      position: fixed; inset: 0; z-index: 99999;
+      background: #0D0D0D;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 24px;
+    }
+    .loader-brand {
+      font-family: 'Estripe', sans-serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 300;
+      letter-spacing: 0.4em;
+      color: #C9A96E;
+      opacity: 0;
+    }
+    .loader-line {
+      width: 120px; height: 1px;
+      background: rgba(201,169,110,0.2);
+      position: relative; overflow: hidden;
+    }
+    .loader-line::after {
+      content: ''; position: absolute;
+      left: -100%; top: 0; width: 100%; height: 100%;
+      background: #C9A96E;
+      animation: loaderSlide 1.5s ease-in-out infinite;
+    }
+    @keyframes loaderSlide {
+      0% { left: -100%; }
+      50% { left: 0; }
+      100% { left: 100%; }
+    }
+
+    /* Custom Cursor */
+    .cursor-dot {
+      width: 6px; height: 6px;
+      background: #C9A96E;
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 99998;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 40px; height: 40px;
+      border: 1px solid rgba(201,169,110,0.4);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 99997;
+      transition: width 0.3s, height 0.3s, border-color 0.3s;
+    }
+    .cursor-ring.hovering {
+      width: 60px; height: 60px;
+      border-color: rgba(201,169,110,0.8);
+    }
+    @media (pointer: coarse) { .cursor-dot, .cursor-ring { display: none; } }
+
+    /* Toast */
+    .toast-container {
+      position: fixed; bottom: 32px; right: 32px;
+      z-index: 99990; display: flex; flex-direction: column; gap: 12px;
+    }
+    .toast {
+      background: rgba(11,77,54,0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(201,169,110,0.3);
+      color: #FAF8F5; padding: 16px 24px;
+      border-radius: 4px; font-size: 14px;
+      display: flex; align-items: center; gap: 12px;
+      transform: translateX(120%);
+      transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+      max-width: 380px;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast i { color: #C9A96E; font-size: 18px; }
+
+    /* Navigation */
+    #main-nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 9999; padding: 0 40px;
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+      transform: translateY(-100%);
+    }
+    #main-nav.visible { transform: translateY(0); }
+    #main-nav.scrolled {
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(201,169,110,0.1);
+    }
+    .nav-link {
+      font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(250,248,245,0.7); transition: color 0.3s;
+      position: relative; padding: 8px 0;
+    }
+    .nav-link::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; width: 0; height: 1px;
+      background: #C9A96E; transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .nav-link:hover, .nav-link.active { color: #C9A96E; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+    /* Hero */
+    #hero {
+      min-height: 100vh; position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 40%, rgba(11,77,54,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(201,169,110,0.05) 0%, transparent 40%),
+                  #0D0D0D;
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Estripe', sans-serif;
+      font-size: clamp(10rem, 22vw, 28rem);
+      font-weight: 300;
+      color: rgba(201,169,110,0.03);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 3;
+    }
+
+    /* Hero video background */
+    #hero-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      z-index: 0;
+      filter: brightness(0.55) contrast(1.05);
+      pointer-events: none;
+    }
+    .hero-video-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(13,13,13,0.2) 0%, rgba(13,13,13,0.45) 70%, rgba(13,13,13,0.75) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Watch CSS */
+    .watch-wrapper {
+      position: relative; width: 340px; height: 340px;
+      perspective: 1000px;
+    }
+    .watch-float {
+      animation: watchFloat 6s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+    @keyframes watchFloat {
+      0%, 100% { transform: translateY(0) rotateY(0deg); }
+      25% { transform: translateY(-12px) rotateY(5deg); }
+      50% { transform: translateY(-4px) rotateY(0deg); }
+      75% { transform: translateY(-16px) rotateY(-5deg); }
+    }
+    .watch-case {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #D4BA85, #8B7355, #C9A96E, #6B5B3E, #D4BA85, #A08B55, #C9A96E, #8B7355, #D4BA85);
+      padding: 14px;
+      position: relative;
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(201,169,110,0.2),
+        inset 0 2px 2px rgba(255,255,255,0.2),
+        inset 0 -2px 2px rgba(0,0,0,0.3);
+    }
+    .watch-bezel {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(from 30deg, #B8995A, #6B5B3E, #C9A96E, #7A6545, #B8995A, #8B7355, #C9A96E, #6B5B3E, #B8995A);
+      padding: 6px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 1px rgba(0,0,0,0.2);
+    }
+    .watch-dial {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #1a3a2a, #0a1a10 60%, #050f0a);
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    }
+    .watch-dial::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        transparent 0deg 4deg,
+        rgba(201,169,110,0.015) 4deg 5deg
+      );
+    }
+    .watch-dial-text {
+      position: absolute;
+      font-family: 'Estripe', sans-serif;
+      font-size: 9px; letter-spacing: 0.25em;
+      color: rgba(201,169,110,0.6);
+      text-transform: uppercase;
+    }
+    .watch-dial-text.top { top: 28%; left: 50%; transform: translateX(-50%); }
+    .watch-dial-text.bottom { bottom: 28%; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 0.2em; }
+
+    .marker {
+      position: absolute;
+      width: 3px; background: #C9A96E;
+      top: 10px; left: 50%;
+      transform-origin: 50% calc(150px - 10px);
+      transform: translateX(-50%) rotate(calc(var(--i) * 30deg));
+      border-radius: 1px;
+    }
+    .marker.minor { height: 14px; opacity: 0.6; }
+    .marker.major { height: 22px; width: 4px; opacity: 1; }
+
+    .date-window {
+      position: absolute; right: 18%; top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 18px;
+      background: #FAF8F5;
+      border: 1px solid rgba(201,169,110,0.3);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Estripe', sans-serif;
+      font-size: 10px; font-weight: 700;
+      color: #0D0D0D;
+    }
+    .hand {
+      position: absolute;
+      bottom: 50%; left: 50%;
+      transform-origin: bottom center;
+      border-radius: 2px;
+    }
+    .hour-hand {
+      width: 5px; height: 70px;
+      background: linear-gradient(to top, #C9A96E, #D4BA85);
+      transform: translateX(-50%) rotate(300deg);
+      z-index: 10;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    .minute-hand {
+      width: 3px; height: 100px;
+      background: linear-gradient(to top, #C9A96E, #D4BA85);
+      transform: translateX(-50%) rotate(180deg);
+      z-index: 11;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    .second-hand {
+      width: 1px; height: 115px;
+      background: #C9A96E;
+      transform: translateX(-50%) rotate(0deg);
+      z-index: 12;
+      animation: sweepSeconds 60s linear infinite;
+    }
+    .second-hand::after {
+      content: '';
+      position: absolute; bottom: -20px; left: 50%;
+      transform: translateX(-50%);
+      width: 1px; height: 20px;
+      background: #C9A96E;
+    }
+    @keyframes sweepSeconds {
+      from { transform: translateX(-50%) rotate(0deg); }
+      to { transform: translateX(-50%) rotate(360deg); }
+    }
+    .center-pin {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px; height: 10px;
+      background: #C9A96E;
+      border-radius: 50%; z-index: 13;
+      box-shadow: 0 0 6px rgba(201,169,110,0.5);
+    }
+    .watch-reflection {
+      position: absolute; inset: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.04) 100%);
+      pointer-events: none; z-index: 14;
+    }
+    .watch-crown {
+      position: absolute; right: -14px; top: 50%;
+      transform: translateY(-50%);
+      width: 12px; height: 28px;
+      background: linear-gradient(to right, #B8995A, #D4BA85, #A08B55);
+      border-radius: 0 4px 4px 0;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+      z-index: 5;
+    }
+    .watch-crown::before {
+      content: '';
+      position: absolute; inset: 4px 2px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px, transparent 2px,
+        rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 3px
+      );
+      border-radius: 0 2px 2px 0;
+    }
+    .watch-shadow {
+      position: absolute; bottom: -25px; left: 50%;
+      transform: translateX(-50%);
+      width: 220px; height: 25px;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.4), transparent 70%);
+      filter: blur(8px);
+    }
+
+    /* Floating elements */
+    .float-element {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .float-gold-dot {
+      background: radial-gradient(circle, rgba(201,169,110,0.6), rgba(201,169,110,0));
+      animation: floatDot var(--dur) ease-in-out infinite var(--delay);
+    }
+    @keyframes floatDot {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+      50% { transform: translate(var(--tx), var(--ty)) scale(1.2); opacity: 1; }
+    }
+    .float-crystal {
+      width: 8px; height: 8px;
+      background: rgba(201,169,110,0.3);
+      transform: rotate(45deg);
+      animation: floatCrystal var(--dur) ease-in-out infinite var(--delay);
+    }
+    @keyframes floatCrystal {
+      0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.4; }
+      50% { transform: rotate(45deg) translate(var(--tx), var(--ty)); opacity: 0.8; }
+    }
+
+    /* Particles canvas */
+    #particles-canvas {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 1;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px; z-index: 10;
+    }
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: rgba(201,169,110,0.2);
+      position: relative; overflow: hidden;
+    }
+    .scroll-line::after {
+      content: ''; position: absolute;
+      top: -100%; left: 0; width: 100%; height: 50%;
+      background: #C9A96E;
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0% { top: -50%; }
+      100% { top: 150%; }
+    }
+
+    /* Section title animation */
+    .section-reveal { opacity: 0; transform: translateY(40px); }
+
+    /* Collection cards */
+    .collection-card {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(201,169,110,0.1);
+      transition: border-color 0.5s, transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .collection-card:hover {
+      border-color: rgba(201,169,110,0.3);
+      transform: translateY(-4px);
+    }
+    .collection-card img {
+      transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.8s;
+    }
+    .collection-card:hover img {
+      transform: scale(1.05);
+    }
+    .collection-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,13,13,0.9) 0%, rgba(13,13,13,0.3) 40%, transparent 70%);
+    }
+
+    /* Button styles */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px;
+      background: #C9A96E;
+      color: #0D0D0D;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+    .btn-primary:hover::before { transform: translateX(100%); }
+    .btn-primary:hover {
+      background: #D4BA85;
+      box-shadow: 0 4px 20px rgba(201,169,110,0.3);
+    }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px;
+      background: transparent;
+      color: #C9A96E;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      border: 1px solid rgba(201,169,110,0.4);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .btn-secondary:hover {
+      border-color: #C9A96E;
+      background: rgba(201,169,110,0.08);
+      box-shadow: 0 4px 20px rgba(201,169,110,0.1);
+    }
+
+    .btn-sm {
+      padding: 10px 24px; font-size: 11px;
+    }
+
+    /* Showcase card */
+    .showcase-card {
+      background: linear-gradient(145deg, rgba(26,26,26,0.8), rgba(13,13,13,0.9));
+      border: 1px solid rgba(201,169,110,0.1);
+      transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+      overflow: hidden;
+    }
+    .showcase-card:hover {
+      border-color: rgba(201,169,110,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      transform: translateY(-6px);
+    }
+
+    /* Carousel */
+    .carousel-track {
+      display: flex; gap: 32px;
+      cursor: grab; user-select: none;
+      padding: 40px 0;
+    }
+    .carousel-track:active { cursor: grabbing; }
+    .carousel-item {
+      flex-shrink: 0;
+      width: 320px;
+      transition: transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.6s;
+    }
+    .carousel-item.active { transform: scale(1.05); }
+    .carousel-item:not(.active) { opacity: 0.5; }
+
+    /* Timeline */
+    .timeline-line {
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: rgba(201,169,110,0.15);
+      transform: translateX(-50%);
+    }
+    .timeline-dot {
+      width: 12px; height: 12px;
+      background: #0D0D0D;
+      border: 2px solid #C9A96E;
+      border-radius: 50%;
+      position: absolute; left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      transition: all 0.4s;
+    }
+    .timeline-item:hover .timeline-dot {
+      background: #C9A96E;
+      box-shadow: 0 0 20px rgba(201,169,110,0.4);
+    }
+
+    /* Testimonial */
+    .testimonial-card {
+      background: linear-gradient(145deg, rgba(26,26,26,0.6), rgba(13,13,13,0.8));
+      border: 1px solid rgba(201,169,110,0.08);
+      transition: all 0.5s;
+    }
+    .testimonial-card:hover {
+      border-color: rgba(201,169,110,0.2);
+    }
+
+    /* Form */
+    .form-input {
+      width: 100%; padding: 14px 18px;
+      background: rgba(26,26,26,0.6);
+      border: 1px solid rgba(201,169,110,0.15);
+      color: #FAF8F5;
+      font-family: 'Estripe', sans-serif;
+      font-size: 14px;
+      transition: all 0.3s;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: #C9A96E;
+      box-shadow: 0 0 0 2px rgba(201,169,110,0.1);
+    }
+    .form-input.error { border-color: #e74c3c; }
+    .form-input::placeholder { color: rgba(250,248,245,0.3); }
+    .form-label {
+      display: block; font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(250,248,245,0.5);
+      margin-bottom: 8px;
+    }
+    .error-msg {
+      font-size: 12px; color: #e74c3c;
+      margin-top: 4px; display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* Mobile menu */
+    #mobile-menu {
+      position: fixed; inset: 0; z-index: 99995;
+      background: rgba(13,13,13,0.97);
+      backdrop-filter: blur(30px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    #mobile-menu.open { opacity: 1; pointer-events: all; }
+    .mobile-nav-link {
+      font-family: 'Estripe', sans-serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 300;
+      color: rgba(250,248,245,0.5);
+      display: block; padding: 12px 0;
+      transition: color 0.3s, transform 0.3s;
+      transform: translateY(20px); opacity: 0;
+    }
+    #mobile-menu.open .mobile-nav-link {
+      transform: translateY(0); opacity: 1;
+    }
+    .mobile-nav-link:hover { color: #C9A96E; }
+
+    /* Back to top */
+    #back-to-top {
+      position: fixed; bottom: 32px; left: 32px;
+      width: 48px; height: 48px;
+      background: rgba(11,77,54,0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(201,169,110,0.2);
+      color: #C9A96E;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 9998;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.4s;
+    }
+    #back-to-top.visible { opacity: 1; transform: translateY(0); }
+    #back-to-top:hover {
+      background: rgba(11,77,54,1);
+      border-color: rgba(201,169,110,0.5);
+    }
+
+    /* Stat counter */
+    .stat-number {
+      font-family: 'Estripe', sans-serif;
+      font-weight: 300;
+      color: #C9A96E;
+      line-height: 1;
+    }
+
+    /* Wishlist button */
+    .wishlist-btn {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(201,169,110,0.2);
+      background: transparent; color: rgba(250,248,245,0.5);
+      cursor: pointer; transition: all 0.3s;
+    }
+    .wishlist-btn:hover, .wishlist-btn.active {
+      border-color: #C9A96E; color: #C9A96E;
+    }
+    .wishlist-btn.active i { font-weight: 900; }
+
+    /* Image treatment */
+    .lux-img {
+      filter: brightness(0.75) contrast(1.1) saturate(0.85);
+      transition: filter 0.8s;
+    }
+    .lux-img:hover { filter: brightness(0.85) contrast(1.05) saturate(0.9); }
+
+    /* Responsive timeline */
+    @media (max-width: 768px) {
+      .timeline-line { left: 20px; }
+      .timeline-dot { left: 20px; }
+    }
+
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0D0D0D; }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,0.5); }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .watch-float { animation: none; }
+      .second-hand { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-brand">CHRONOS</div>
+    <div class="loader-line"></div>
+  </div>
+
+  <!-- Custom Cursor -->
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Navigation -->
+  <nav id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between h-20">
+      <!-- Logo -->
+      <a href="#home" class="flex items-center gap-3" aria-label="CHRONOS Home">
+        <span class="font-serif text-2xl font-light tracking-mega text-brand-gold">CHRONOS</span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="hidden lg:flex items-center gap-8">
+        <a href="#home" class="nav-link active" data-section="home">Home</a>
+        <a href="#collections" class="nav-link" data-section="collections">Collections</a>
+        <a href="#craftsmanship" class="nav-link" data-section="craftsmanship">Craftsmanship</a>
+        <a href="#heritage" class="nav-link" data-section="heritage">Heritage</a>
+        <a href="#appointment" class="nav-link" data-section="appointment">Services</a>
+        <a href="#boutique" class="nav-link" data-section="boutique">Boutique</a>
+        <a href="#contact" class="nav-link" data-section="contact">Contact</a>
+      </div>
+
+      <!-- Right Actions -->
+      <div class="hidden lg:flex items-center gap-5">
+        <button id="lang-selector" class="text-xs tracking-widest uppercase text-brand-silver hover:text-brand-gold transition-colors cursor-pointer" aria-label="Select language">
+          EN <i class="fas fa-chevron-down text-[8px] ml-1"></i>
+        </button>
+        <a href="#collections" class="btn-primary btn-sm">Explore Watches</a>
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button id="mobile-toggle" class="lg:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 cursor-pointer" aria-label="Open menu">
+        <span class="w-6 h-[1px] bg-brand-gold transition-all origin-center" id="ham-1"></span>
+        <span class="w-4 h-[1px] bg-brand-gold transition-all" id="ham-2"></span>
+        <span class="w-6 h-[1px] bg-brand-gold transition-all origin-center" id="ham-3"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" role="dialog" aria-label="Mobile navigation">
+    <div class="text-center">
+      <a href="#home" class="mobile-nav-link" style="transition-delay:0.1s">Home</a>
+      <a href="#collections" class="mobile-nav-link" style="transition-delay:0.15s">Collections</a>
+      <a href="#craftsmanship" class="mobile-nav-link" style="transition-delay:0.2s">Craftsmanship</a>
+      <a href="#heritage" class="mobile-nav-link" style="transition-delay:0.25s">Heritage</a>
+      <a href="#appointment" class="mobile-nav-link" style="transition-delay:0.3s">Services</a>
+      <a href="#boutique" class="mobile-nav-link" style="transition-delay:0.35s">Boutique</a>
+      <a href="#contact" class="mobile-nav-link" style="transition-delay:0.4s">Contact</a>
+      <div class="mt-10 opacity-0" id="mobile-cta" style="transition-delay:0.45s;transition:opacity 0.5s 0.45s">
+        <a href="#collections" class="btn-primary">Explore Watches</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="home" class="relative">
+    <div id="hero">
+      <video id="hero-video" autoplay muted loop playsinline preload="metadata">
+        <source src="thumbnails/Wan_Video_Generate_Make it cinematic from beginning to end.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="hero-video-overlay" aria-hidden="true"></div>
+      <!-- Background Typography -->
+      <div class="hero-bg-text" id="hero-bg-text">CHRONOS</div>
+
+      <!-- Particles Canvas -->
+      <canvas id="particles-canvas"></canvas>
+
+      <!-- Hero Content -->
+      <div class="relative z-10 min-h-screen flex items-center px-6 md:px-12 lg:px-16 xl:px-20">
+        <div class="max-w-[1440px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center pt-24 lg:pt-0">
+
+          <!-- Left: Headline -->
+          <div class="lg:col-span-4 order-2 lg:order-1" id="hero-left">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-6 hero-fade" style="opacity:0">Swiss Luxury Since 1905</p>
+            <h1 class="font-serif font-light text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl leading-[1.1] tracking-wide text-brand-white mb-6 hero-fade" style="opacity:0">
+              Time Is The<br>Ultimate Luxury.
+            </h1>
+            <p class="text-sm leading-relaxed text-brand-silver max-w-md mb-10 hero-fade" style="opacity:0">
+              Every Chronos timepiece is born from a century of Swiss mastery — hand-assembled with precious metals, certified movements, and an uncompromising devotion to precision that transcends generations.
+            </p>
+            <div class="flex flex-wrap gap-4 hero-fade" style="opacity:0">
+              <a href="#collections" class="btn-primary">
+                Explore Collection <i class="fas fa-arrow-right text-xs"></i>
+              </a>
+              <a href="#heritage" class="btn-secondary">
+                Discover Heritage
+              </a>
+            </div>
+          </div>
+
+          <!-- Center: Watch -->
+          <div class="lg:col-span-4 flex justify-center order-1 lg:order-2" id="hero-center">
+            <div class="relative">
+              <!-- Floating elements -->
+              <div class="float-element float-gold-dot" style="width:6px;height:6px;top:10%;left:5%;--dur:4s;--delay:0s;--tx:10px;--ty:-15px"></div>
+              <div class="float-element float-gold-dot" style="width:4px;height:4px;top:20%;right:0%;--dur:5s;--delay:0.5s;--tx:-12px;--ty:-8px"></div>
+              <div class="float-element float-crystal" style="top:15%;right:10%;--dur:6s;--delay:1s;--tx:8px;--ty:-12px"></div>
+              <div class="float-element float-gold-dot" style="width:5px;height:5px;bottom:25%;left:0%;--dur:4.5s;--delay:0.3s;--tx:15px;--ty:10px"></div>
+              <div class="float-element float-crystal" style="bottom:15%;right:5%;--dur:5.5s;--delay:0.8s;--tx:-10px;--ty:-8px"></div>
+              <div class="float-element float-gold-dot" style="width:3px;height:3px;top:40%;left:-5%;--dur:3.5s;--delay:1.2s;--tx:8px;--ty:-20px"></div>
+              <div class="float-element float-gold-dot" style="width:4px;height:4px;top:60%;right:-3%;--dur:4.8s;--delay:0.7s;--tx:-6px;--ty:12px"></div>
+              <div class="float-element float-crystal" style="top:5%;left:40%;--dur:5.2s;--delay:1.5s;--tx:5px;--ty:-18px"></div>
+
+              <!-- Watch -->
+              <div class="watch-wrapper hero-fade" style="opacity:0" id="watch-anim">
+                <div class="watch-float">
+                  <div class="watch-case">
+                    <div class="watch-bezel">
+                      <div class="watch-dial">
+                        <!-- Markers -->
+                        <div class="marker major" style="--i:0"></div>
+                        <div class="marker minor" style="--i:1"></div>
+                        <div class="marker minor" style="--i:2"></div>
+                        <div class="marker major" style="--i:3"></div>
+                        <div class="marker minor" style="--i:4"></div>
+                        <div class="marker minor" style="--i:5"></div>
+                        <div class="marker major" style="--i:6"></div>
+                        <div class="marker minor" style="--i:7"></div>
+                        <div class="marker minor" style="--i:8"></div>
+                        <div class="marker major" style="--i:9"></div>
+                        <div class="marker minor" style="--i:10"></div>
+                        <div class="marker minor" style="--i:11"></div>
+                        <!-- Dial text -->
+                        <div class="watch-dial-text top">Chronos</div>
+                        <div class="watch-dial-text bottom">Automatic</div>
+                        <!-- Date window -->
+                        <div class="date-window">31</div>
+                        <!-- Hands -->
+                        <div class="hand hour-hand"></div>
+                        <div class="hand minute-hand"></div>
+                        <div class="hand second-hand"></div>
+                        <div class="center-pin"></div>
+                        <!-- Reflection -->
+                        <div class="watch-reflection"></div>
+                      </div>
+                    </div>
+                    <div class="watch-crown"></div>
+                  </div>
+                  <div class="watch-shadow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Statistics -->
+          <div class="lg:col-span-4 order-3 flex flex-col gap-8 lg:pl-8" id="hero-right">
+            <div class="hero-fade border-l border-brand-gold/20 pl-6" style="opacity:0">
+              <div class="stat-number text-4xl md:text-5xl mb-2" data-target="1905">0</div>
+              <p class="text-xs tracking-ultra uppercase text-brand-silver">Swiss Heritage</p>
+            </div>
+            <div class="hero-fade border-l border-brand-gold/20 pl-6" style="opacity:0">
+              <div class="stat-number text-4xl md:text-5xl mb-2"><span data-target="150">0</span>+</div>
+              <p class="text-xs tracking-ultra uppercase text-brand-silver">Luxury Models</p>
+            </div>
+            <div class="hero-fade border-l border-brand-gold/20 pl-6" style="opacity:0">
+              <div class="stat-number text-4xl md:text-5xl mb-2"><span data-target="100">0</span>%</div>
+              <p class="text-xs tracking-ultra uppercase text-brand-silver">Authenticity Guaranteed</p>
+            </div>
+            <div class="hero-fade border-l border-brand-gold/20 pl-6" style="opacity:0">
+              <div class="stat-number text-4xl md:text-5xl mb-2"><span data-target="5">0</span> Years</div>
+              <p class="text-xs tracking-ultra uppercase text-brand-silver">International Warranty</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator -->
+      <div class="scroll-indicator hero-fade" style="opacity:0" id="scroll-ind">
+        <span class="text-[10px] tracking-ultra uppercase text-brand-silver">Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Collections Section -->
+  <section id="collections" class="py-24 md:py-36 px-6 md:px-12 lg:px-16 xl:px-20">
+    <div class="max-w-[1440px] mx-auto">
+      <div class="text-center mb-16 md:mb-24 section-reveal">
+        <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">Our World</p>
+        <h2 class="font-serif font-light text-4xl md:text-5xl lg:text-6xl tracking-wide">The Collections</h2>
+        <div class="w-16 h-[1px] bg-brand-gold/30 mx-auto mt-8"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 section-reveal">
+        <!-- Dress Watches -->
+        <div class="collection-card md:col-span-2 lg:col-span-2 h-[420px] md:h-[500px]">
+          <img src="https://picsum.photos/seed/dress-luxury/900/600" alt="Dress Watches Collection" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="collection-overlay"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Collection</p>
+            <h3 class="font-serif text-3xl md:text-4xl font-light mb-3">Dress Watches</h3>
+            <p class="text-sm text-brand-silver mb-6 max-w-md">Refined elegance for every occasion. Slim profiles, precious metals, and dials that capture light with understated brilliance.</p>
+            <a href="#showcase" class="btn-secondary btn-sm">View Collection <i class="fas fa-arrow-right text-xs"></i></a>
+          </div>
+        </div>
+
+        <!-- Sports Watches -->
+        <div class="collection-card h-[420px] md:h-[500px]">
+          <img src="https://picsum.photos/seed/sport-watch/600/800" alt="Sports Watches Collection" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="collection-overlay"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-3">Sports Watches</h3>
+            <a href="#showcase" class="btn-secondary btn-sm mt-4">Explore <i class="fas fa-arrow-right text-xs"></i></a>
+          </div>
+        </div>
+
+        <!-- Diving Watches -->
+        <div class="collection-card h-[400px]">
+          <img src="https://picsum.photos/seed/dive-ocean/600/700" alt="Diving Watches Collection" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="collection-overlay"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-3">Diving Watches</h3>
+            <a href="#showcase" class="btn-secondary btn-sm mt-4">Explore <i class="fas fa-arrow-right text-xs"></i></a>
+          </div>
+        </div>
+
+        <!-- GMT Watches -->
+        <div class="collection-card h-[400px]">
+          <img src="https://picsum.photos/seed/gmt-travel/600/700" alt="GMT Watches Collection" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="collection-overlay"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-3">GMT Watches</h3>
+            <a href="#showcase" class="btn-secondary btn-sm mt-4">Explore <i class="fas fa-arrow-right text-xs"></i></a>
+          </div>
+        </div>
+
+        <!-- Chronographs -->
+        <div class="collection-card h-[400px]">
+          <img src="https://picsum.photos/seed/chrono-speed/600/700" alt="Chronographs Collection" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="collection-overlay"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-3">Chronographs</h3>
+            <a href="#showcase" class="btn-secondary btn-sm mt-4">Explore <i class="fas fa-arrow-right text-xs"></i></a>
+          </div>
+        </div>
+
+        <!-- Limited Editions -->
+        <div class="collection-card md:col-span-2 lg:col-span-3 h-[350px] md:h-[400px]">
+          <img src="https://picsum.photos/seed/limited-edition-gold/1200/500" alt="Limited Editions Collection" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="collection-overlay"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div>
+              <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Exclusive</p>
+              <h3 class="font-serif text-3xl md:text-4xl font-light mb-3">Limited Editions</h3>
+              <p class="text-sm text-brand-silver max-w-lg">Rare masterpieces produced in strictly numbered series. Each carries a unique heritage that will never be replicated.</p>
+            </div>
+            <a href="#showcase" class="btn-primary btn-sm whitespace-nowrap">Discover <i class="fas fa-arrow-right text-xs"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Craftsmanship Section -->
+  <section id="craftsmanship" class="py-24 md:py-36 bg-brand-charcoal/50">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center mb-24 md:mb-36 section-reveal">
+        <div class="relative h-[500px] md:h-[650px] overflow-hidden">
+          <img src="https://picsum.photos/seed/swiss-movement/800/1000" alt="Swiss movement assembly" class="lux-img w-full h-full object-cover" loading="lazy">
+          <div class="absolute inset-0 bg-gradient-to-t from-brand-black/60 via-transparent to-transparent"></div>
+          <div class="absolute bottom-8 left-8 right-8">
+            <p class="font-serif text-2xl text-brand-gold/80 italic">"Perfection is not a detail, it is the sum of all details."</p>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">The Art of Watchmaking</p>
+          <h2 class="font-serif font-light text-4xl md:text-5xl tracking-wide mb-8">Crafted by Hand,<br>Measured in Lifetimes</h2>
+          <p class="text-sm text-brand-silver leading-relaxed mb-8">
+            Each Chronos timepiece requires over 400 hours of meticulous hand-assembly by master watchmakers in our Geneva atelier. From the first turned component to the final waterproof test, every step reflects a tradition of excellence passed down through four generations.
+          </p>
+          <p class="text-sm text-brand-silver leading-relaxed mb-10">
+            Our movements are developed entirely in-house — a rare distinction in modern horology. Each caliber is assembled, adjusted, and tested over several weeks to meet our exacting standards of precision, achieving chronometric certification that places Chronos among the world's finest.
+          </p>
+          <a href="#heritage" class="btn-secondary">Our Heritage <i class="fas fa-arrow-right text-xs ml-2"></i></a>
+        </div>
+      </div>
+
+      <!-- Craftsmanship Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 section-reveal">
+        <div class="text-center">
+          <div class="stat-number text-5xl md:text-6xl mb-3" data-target="400">0</div>
+          <div class="w-8 h-[1px] bg-brand-gold/30 mx-auto mb-3"></div>
+          <p class="text-xs tracking-ultra uppercase text-brand-silver">Hours Per Watch</p>
+        </div>
+        <div class="text-center">
+          <div class="stat-number text-5xl md:text-6xl mb-3" data-target="312">0</div>
+          <div class="w-8 h-[1px] bg-brand-gold/30 mx-auto mb-3"></div>
+          <p class="text-xs tracking-ultra uppercase text-brand-silver">Components</p>
+        </div>
+        <div class="text-center">
+          <div class="stat-number text-5xl md:text-6xl mb-3">&minus;<span data-target="2">0</span></div>
+          <div class="w-8 h-[1px] bg-brand-gold/30 mx-auto mb-3"></div>
+          <p class="text-xs tracking-ultra uppercase text-brand-silver">Seconds Per Day</p>
+        </div>
+        <div class="text-center">
+          <div class="stat-number text-5xl md:text-6xl mb-3" data-target="72">0</div>
+          <div class="w-8 h-[1px] bg-brand-gold/30 mx-auto mb-3"></div>
+          <p class="text-xs tracking-ultra uppercase text-brand-silver">Hour Power Reserve</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signature Watch Showcase -->
+  <section id="showcase" class="py-24 md:py-36 px-6 md:px-12 lg:px-16 xl:px-20">
+    <div class="max-w-[1440px] mx-auto">
+      <div class="text-center mb-16 md:mb-24 section-reveal">
+        <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">Signature Timepieces</p>
+        <h2 class="font-serif font-light text-4xl md:text-5xl lg:text-6xl tracking-wide">Masterworks</h2>
+        <div class="w-16 h-[1px] bg-brand-gold/30 mx-auto mt-8"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 section-reveal" id="showcase-grid">
+        <!-- Watch 1 -->
+        <div class="showcase-card">
+          <div class="relative h-[360px] overflow-hidden bg-brand-charcoal">
+            <img src="https://picsum.photos/seed/watch-classic-1/600/700" alt="Chronos Sovereign" class="lux-img w-full h-full object-cover" loading="lazy">
+            <button class="wishlist-btn absolute top-4 right-4" aria-label="Add to wishlist" onclick="toggleWishlist(this)">
+              <i class="far fa-heart text-sm"></i>
+            </button>
+          </div>
+          <div class="p-6">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Dress Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-1">Sovereign</h3>
+            <p class="text-brand-gold text-lg mb-4">$24,500</p>
+            <div class="grid grid-cols-2 gap-3 text-xs text-brand-silver mb-6">
+              <div><span class="text-brand-white/60 block">Movement</span>Cal. 3255 Automatic</div>
+              <div><span class="text-brand-white/60 block">Case</span>18k Yellow Gold</div>
+              <div><span class="text-brand-white/60 block">Power Reserve</span>70 Hours</div>
+              <div><span class="text-brand-white/60 block">Water Resistance</span>100m</div>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="w-2 h-2 rounded-full bg-green-500"></span>
+              <span class="text-xs text-green-400">Available</span>
+            </div>
+            <div class="flex gap-3">
+              <a href="#appointment" class="btn-primary btn-sm flex-1 justify-center">Book Appointment</a>
+              <a href="#appointment" class="btn-secondary btn-sm flex-1 justify-center">Explore Details</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watch 2 -->
+        <div class="showcase-card">
+          <div class="relative h-[360px] overflow-hidden bg-brand-charcoal">
+            <img src="https://picsum.photos/seed/watch-diver-2/600/700" alt="Chronos Mariner" class="lux-img w-full h-full object-cover" loading="lazy">
+            <button class="wishlist-btn absolute top-4 right-4" aria-label="Add to wishlist" onclick="toggleWishlist(this)">
+              <i class="far fa-heart text-sm"></i>
+            </button>
+          </div>
+          <div class="p-6">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Diving Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-1">Mariner Deep</h3>
+            <p class="text-brand-gold text-lg mb-4">$18,900</p>
+            <div class="grid grid-cols-2 gap-3 text-xs text-brand-silver mb-6">
+              <div><span class="text-brand-white/60 block">Movement</span>Cal. 3230 Automatic</div>
+              <div><span class="text-brand-white/60 block">Case</span>904L Oystersteel</div>
+              <div><span class="text-brand-white/60 block">Power Reserve</span>48 Hours</div>
+              <div><span class="text-brand-white/60 block">Water Resistance</span>300m</div>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="w-2 h-2 rounded-full bg-green-500"></span>
+              <span class="text-xs text-green-400">Available</span>
+            </div>
+            <div class="flex gap-3">
+              <a href="#appointment" class="btn-primary btn-sm flex-1 justify-center">Book Appointment</a>
+              <a href="#appointment" class="btn-secondary btn-sm flex-1 justify-center">Explore Details</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watch 3 -->
+        <div class="showcase-card">
+          <div class="relative h-[360px] overflow-hidden bg-brand-charcoal">
+            <img src="https://picsum.photos/seed/watch-chrono-3/600/700" alt="Chronos Velocity" class="lux-img w-full h-full object-cover" loading="lazy">
+            <button class="wishlist-btn absolute top-4 right-4" aria-label="Add to wishlist" onclick="toggleWishlist(this)">
+              <i class="far fa-heart text-sm"></i>
+            </button>
+          </div>
+          <div class="p-6">
+            <p class="text-xs tracking-ultra uppercase text-brand-gold mb-2">Chronograph Collection</p>
+            <h3 class="font-serif text-2xl font-light mb-1">Velocity</h3>
+            <p class="text-brand-gold text-lg mb-4">$32,800</p>
+            <div class="grid grid-cols-2 gap-3 text-xs text-brand-silver mb-6">
+              <div><span class="text-brand-white/60 block">Movement</span>Cal. 4130 Chronograph</div>
+              <div><span class="text-brand-white/60 block">Case</span>18k Everose Gold</div>
+              <div><span class="text-brand-white/60 block">Power Reserve</span>72 Hours</div>
+              <div><span class="text-brand-white/60 block">Water Resistance</span>100m</div>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span class="text-xs text-amber-400">Limited Availability</span>
+            </div>
+            <div class="flex gap-3">
+              <a href="#appointment" class="btn-primary btn-sm flex-1 justify-center">Book Appointment</a>
+              <a href="#appointment" class="btn-secondary btn-sm flex-1 justify-center">Explore Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Watch Carousel -->
+  <section id="carousel" class="py-24 md:py-36 bg-brand-charcoal/50 overflow-hidden">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 mb-12 section-reveal">
+      <div class="flex items-end justify-between">
+        <div>
+          <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">The Full Range</p>
+          <h2 class="font-serif font-light text-4xl md:text-5xl tracking-wide">Explore Every Model</h2>
+        </div>
+        <div class="hidden md:flex gap-3">
+          <button id="carousel-prev" class="w-12 h-12 border border-brand-gold/30 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors cursor-pointer" aria-label="Previous">
+            <i class="fas fa-arrow-left text-sm"></i>
+          </button>
+          <button id="carousel-next" class="w-12 h-12 border border-brand-gold/30 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors cursor-pointer" aria-label="Next">
+            <i class="fas fa-arrow-right text-sm"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="overflow-hidden" id="carousel-viewport">
+      <div class="carousel-track" id="carousel-track">
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w1/640/800" alt="Sovereign 36mm" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Dress</p><h4 class="font-serif text-xl font-light">Sovereign 36mm</h4><p class="text-brand-gold text-sm mt-1">$21,500</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w2/640/800" alt="Sovereign 41mm" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Dress</p><h4 class="font-serif text-xl font-light">Sovereign 41mm</h4><p class="text-brand-gold text-sm mt-1">$26,800</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w3/640/800" alt="Mariner 40mm" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Diving</p><h4 class="font-serif text-xl font-light">Mariner 40mm</h4><p class="text-brand-gold text-sm mt-1">$18,900</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w4/640/800" alt="Navigator GMT" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">GMT</p><h4 class="font-serif text-xl font-light">Navigator GMT</h4><p class="text-brand-gold text-sm mt-1">$22,400</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w5/640/800" alt="Velocity Chrono" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Chronograph</p><h4 class="font-serif text-xl font-light">Velocity Chrono</h4><p class="text-brand-gold text-sm mt-1">$32,800</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w6/640/800" alt="Endurance Sport" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Sports</p><h4 class="font-serif text-xl font-light">Endurance Sport</h4><p class="text-brand-gold text-sm mt-1">$28,500</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w7/640/800" alt="Heritage 1955" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Limited</p><h4 class="font-serif text-xl font-light">Heritage 1955</h4><p class="text-brand-gold text-sm mt-1">$45,000</p></div></div>
+        </div>
+        <div class="carousel-item">
+          <div class="showcase-card"><div class="h-[400px] overflow-hidden bg-brand-charcoal"><img src="https://picsum.photos/seed/carousel-w8/640/800" alt="Perpetual Royal" class="lux-img w-full h-full object-cover" loading="lazy"></div><div class="p-5"><p class="text-[10px] tracking-ultra uppercase text-brand-gold mb-1">Dress</p><h4 class="font-serif text-xl font-light">Perpetual Royal</h4><p class="text-brand-gold text-sm mt-1">$38,200</p></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Carousel progress -->
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 mt-8 flex items-center gap-4 section-reveal">
+      <div class="flex-1 h-[1px] bg-brand-gold/10 relative overflow-hidden">
+        <div id="carousel-progress" class="absolute left-0 top-0 h-full bg-brand-gold/50 transition-all" style="width:0%"></div>
+      </div>
+      <span class="text-xs text-brand-silver" id="carousel-counter">1 / 8</span>
+    </div>
+  </section>
+
+  <!-- Heritage Timeline -->
+  <section id="heritage" class="py-24 md:py-36 px-6 md:px-12 lg:px-16 xl:px-20">
+    <div class="max-w-[1440px] mx-auto">
+      <div class="text-center mb-16 md:mb-24 section-reveal">
+        <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">Our Legacy</p>
+        <h2 class="font-serif font-light text-4xl md:text-5xl lg:text-6xl tracking-wide">A Century of Innovation</h2>
+        <div class="w-16 h-[1px] bg-brand-gold/30 mx-auto mt-8"></div>
+      </div>
+
+      <div class="relative max-w-4xl mx-auto section-reveal" id="timeline">
+        <div class="timeline-line"></div>
+
+        <!-- 1905 -->
+        <div class="timeline-item relative flex flex-col md:flex-row items-center mb-16 md:mb-24">
+          <div class="timeline-dot" style="top:20px"></div>
+          <div class="md:w-1/2 md:pr-16 md:text-right mb-4 md:mb-0 pl-12 md:pl-0">
+            <span class="stat-number text-3xl md:text-4xl">1905</span>
+            <h3 class="font-serif text-xl font-light mt-2 mb-2">The Foundation</h3>
+            <p class="text-sm text-brand-silver leading-relaxed">Henri Chronos establishes the manufacture in Geneva, Switzerland, with a vision to create timepieces of unparalleled precision and enduring beauty.</p>
+          </div>
+          <div class="md:w-1/2 md:pl-16 pl-12">
+            <div class="h-[200px] overflow-hidden">
+              <img src="https://picsum.photos/seed/geneva-1905/500/300" alt="Geneva 1905" class="lux-img w-full h-full object-cover" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- 1926 -->
+        <div class="timeline-item relative flex flex-col md:flex-row-reverse items-center mb-16 md:mb-24">
+          <div class="timeline-dot" style="top:20px"></div>
+          <div class="md:w-1/2 md:pl-16 mb-4 md:mb-0 pl-12">
+            <span class="stat-number text-3xl md:text-4xl">1926</span>
+            <h3 class="font-serif text-xl font-light mt-2 mb-2">The Waterproof Revolution</h3>
+            <p class="text-sm text-brand-silver leading-relaxed">Introduction of the Oyster-case sealing system, making Chronos one of the first waterproof wristwatches in history — a breakthrough that changed horology forever.</p>
+          </div>
+          <div class="md:w-1/2 md:pr-16 pl-12 md:pl-0">
+            <div class="h-[200px] overflow-hidden">
+              <img src="https://picsum.photos/seed/oyster-1926/500/300" alt="Oyster case 1926" class="lux-img w-full h-full object-cover" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- 1953 -->
+        <div class="timeline-item relative flex flex-col md:flex-row items-center mb-16 md:mb-24">
+          <div class="timeline-dot" style="top:20px"></div>
+          <div class="md:w-1/2 md:pr-16 md:text-right mb-4 md:mb-0 pl-12 md:pl-0">
+            <span class="stat-number text-3xl md:text-4xl">1953</span>
+            <h3 class="font-serif text-xl font-light mt-2 mb-2">Conquering the Deep</h3>
+            <p class="text-sm text-brand-silver leading-relaxed">The Mariner diving watch accompanies the first expedition to descend below 1,000 meters, proving its legendary water resistance under extreme conditions.</p>
+          </div>
+          <div class="md:w-1/2 md:pl-16 pl-12">
+            <div class="h-[200px] overflow-hidden">
+              <img src="https://picsum.photos/seed/deep-sea-1953/500/300" alt="Deep sea expedition 1953" class="lux-img w-full h-full object-cover" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- 1988 -->
+        <div class="timeline-item relative flex flex-col md:flex-row-reverse items-center mb-16 md:mb-24">
+          <div class="timeline-dot" style="top:20px"></div>
+          <div class="md:w-1/2 md:pl-16 mb-4 md:mb-0 pl-12">
+            <span class="stat-number text-3xl md:text-4xl">1988</span>
+            <h3 class="font-serif text-xl font-light mt-2 mb-2">The Perpetual Movement</h3>
+            <p class="text-sm text-brand-silver leading-relaxed">Development of the in-house Cal. 3100 perpetual movement with 72-hour power reserve, setting a new standard for mechanical precision and reliability.</p>
+          </div>
+          <div class="md:w-1/2 md:pr-16 pl-12 md:pl-0">
+            <div class="h-[200px] overflow-hidden">
+              <img src="https://picsum.photos/seed/movement-1988/500/300" alt="Perpetual movement 1988" class="lux-img w-full h-full object-cover" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2024 -->
+        <div class="timeline-item relative flex flex-col md:flex-row items-center">
+          <div class="timeline-dot" style="top:20px"></div>
+          <div class="md:w-1/2 md:pr-16 md:text-right pl-12 md:pl-0">
+            <span class="stat-number text-3xl md:text-4xl">2024</span>
+            <h3 class="font-serif text-xl font-light mt-2 mb-2">The New Era</h3>
+            <p class="text-sm text-brand-silver leading-relaxed">Unveiling of the next-generation Cal. 4000 series with silicon escapement, magnetic resistance to 15,000 gauss, and 120-hour power reserve — defining the future of Swiss watchmaking.</p>
+          </div>
+          <div class="md:w-1/2 md:pl-16 pl-12">
+            <div class="h-[200px] overflow-hidden">
+              <img src="https://picsum.photos/seed/modern-chrono-2024/500/300" alt="Modern Chronos 2024" class="lux-img w-full h-full object-cover" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="py-24 md:py-36 bg-brand-charcoal/50">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20">
+      <div class="text-center mb-16 md:mb-24 section-reveal">
+        <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">Distinction</p>
+        <h2 class="font-serif font-light text-4xl md:text-5xl lg:text-6xl tracking-wide">Voices of Connoisseurs</h2>
+        <div class="w-16 h-[1px] bg-brand-gold/30 mx-auto mt-8"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 section-reveal">
+        <div class="testimonial-card p-8 md:p-10">
+          <div class="flex gap-1 mb-6">
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+          </div>
+          <p class="font-serif text-lg italic text-brand-white/80 leading-relaxed mb-8">"The Sovereign is not merely a watch — it is a statement of one's understanding of what true luxury means. Its presence on the wrist is both powerful and serene."</p>
+          <div class="flex items-center gap-4">
+            <img src="https://picsum.photos/seed/person-james/100/100" alt="James Richardson" class="w-12 h-12 rounded-full object-cover" loading="lazy">
+            <div>
+              <p class="text-sm font-medium">James Richardson</p>
+              <p class="text-xs text-brand-silver">Collector, London</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card p-8 md:p-10">
+          <div class="flex gap-1 mb-6">
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+          </div>
+          <p class="font-serif text-lg italic text-brand-white/80 leading-relaxed mb-8">"I've owned watches from every major maison. The Mariner Deep accompanied me on a transatlantic crossing and never missed a second. Chronos is in a class of its own."</p>
+          <div class="flex items-center gap-4">
+            <img src="https://picsum.photos/seed/person-sofia/100/100" alt="Sofia Castellano" class="w-12 h-12 rounded-full object-cover" loading="lazy">
+            <div>
+              <p class="text-sm font-medium">Sofia Castellano</p>
+              <p class="text-xs text-brand-silver">Yachtswoman, Monaco</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card p-8 md:p-10">
+          <div class="flex gap-1 mb-6">
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+            <i class="fas fa-star text-brand-gold text-xs"></i>
+          </div>
+          <p class="font-serif text-lg italic text-brand-white/80 leading-relaxed mb-8">"The craftsmanship is evident the moment you hold a Chronos. The weight, the finish, the sweep of the second hand — it speaks to centuries of accumulated expertise."</p>
+          <div class="flex items-center gap-4">
+            <img src="https://picsum.photos/seed/person-kenji/100/100" alt="Kenji Tanaka" class="w-12 h-12 rounded-full object-cover" loading="lazy">
+            <div>
+              <p class="text-sm font-medium">Kenji Tanaka</p>
+              <p class="text-xs text-brand-silver">Architect, Tokyo</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Boutique Experience -->
+  <section id="boutique" class="py-24 md:py-36 px-6 md:px-12 lg:px-16 xl:px-20">
+    <div class="max-w-[1440px] mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start section-reveal">
+        <div>
+          <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">Visit Us</p>
+          <h2 class="font-serif font-light text-4xl md:text-5xl tracking-wide mb-8">The Boutique Experience</h2>
+          <p class="text-sm text-brand-silver leading-relaxed mb-8">
+            Step into the world of Chronos at our flagship boutiques. Every detail — from the hand-selected materials that define our interiors to the expertise of our advisors — has been designed to make your visit as exceptional as the timepieces we present.
+          </p>
+          <div class="space-y-6 mb-10">
+            <div class="flex items-start gap-4">
+              <i class="fas fa-map-marker-alt text-brand-gold mt-1"></i>
+              <div>
+                <p class="text-sm font-medium mb-1">Geneva Flagship</p>
+                <p class="text-xs text-brand-silver">12 Rue du Rhône, 1204 Geneva, Switzerland</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <i class="fas fa-map-marker-alt text-brand-gold mt-1"></i>
+              <div>
+                <p class="text-sm font-medium mb-1">London Boutique</p>
+                <p class="text-xs text-brand-silver">18 Old Bond Street, Mayfair, London W1S 4PQ</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <i class="fas fa-map-marker-alt text-brand-gold mt-1"></i>
+              <div>
+                <p class="text-sm font-medium mb-1">New York Salon</p>
+                <p class="text-xs text-brand-silver">653 Fifth Avenue, New York, NY 10022</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <i class="fas fa-clock text-brand-gold mt-1"></i>
+              <div>
+                <p class="text-sm font-medium mb-1">Hours</p>
+                <p class="text-xs text-brand-silver">Monday — Saturday: 10:00 — 19:00</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <a href="#appointment" class="btn-primary btn-sm">Book Appointment</a>
+            <button onclick="showToast('Directions will open in your maps application.', 'fa-route')" class="btn-secondary btn-sm">Get Directions</button>
+            <button onclick="showToast('Calling Geneva Flagship: +41 22 310 00 00', 'fa-phone')" class="btn-secondary btn-sm">Call Boutique</button>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Map -->
+          <div class="h-[300px] overflow-hidden border border-brand-gold/10">
+            <iframe
+              src="https://www.openstreetmap.org/export/embed.html?bbox=6.1400%2C46.2000%2C6.1600%2C46.2100&layer=mapnik&marker=46.2050%2C6.1500"
+              width="100%" height="100%" style="border:0; filter: grayscale(0.8) contrast(1.1) brightness(0.7);"
+              loading="lazy" title="Boutique location map"
+              aria-label="Map showing Geneva boutique location">
+            </iframe>
+          </div>
+          <!-- Boutique Gallery -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="h-[140px] overflow-hidden"><img src="https://picsum.photos/seed/boutique-int1/400/300" alt="Boutique interior" class="lux-img w-full h-full object-cover" loading="lazy"></div>
+            <div class="h-[140px] overflow-hidden"><img src="https://picsum.photos/seed/boutique-int2/400/300" alt="Boutique display" class="lux-img w-full h-full object-cover" loading="lazy"></div>
+            <div class="h-[140px] overflow-hidden"><img src="https://picsum.photos/seed/boutique-int3/400/300" alt="Boutique lounge" class="lux-img w-full h-full object-cover" loading="lazy"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appointment Booking -->
+  <section id="appointment" class="py-24 md:py-36 bg-brand-charcoal/50">
+    <div class="max-w-[800px] mx-auto px-6 md:px-12">
+      <div class="text-center mb-16 section-reveal">
+        <p class="text-xs tracking-ultra uppercase text-brand-gold mb-4">Private Viewing</p>
+        <h2 class="font-serif font-light text-4xl md:text-5xl tracking-wide mb-4">Book Your Appointment</h2>
+        <p class="text-sm text-brand-silver max-w-md mx-auto">Reserve a private consultation with one of our expert advisors. Experience the full Chronos collection in the comfort of our boutique.</p>
+        <div class="w-16 h-[1px] bg-brand-gold/30 mx-auto mt-8"></div>
+      </div>
+
+      <form id="appointment-form" class="space-y-6 section-reveal" novalidate>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="form-label" for="fullName">Full Name</label>
+            <input type="text" id="fullName" class="form-input" placeholder="Your full name" required>
+            <p class="error-msg" id="fullName-error">Please enter your full name (minimum 2 characters).</p>
+          </div>
+          <div>
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" class="form-input" placeholder="your@email.com" required>
+            <p class="error-msg" id="email-error">Please enter a valid email address.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="form-label" for="phone">Phone Number</label>
+            <input type="tel" id="phone" class="form-input" placeholder="+41 22 000 0000" required>
+            <p class="error-msg" id="phone-error">Please enter a valid phone number.</p>
+          </div>
+          <div>
+            <label class="form-label" for="collection">Preferred Collection</label>
+            <select id="collection" class="form-input" required>
+              <option value="" disabled selected>Select a collection</option>
+              <option value="dress">Dress Watches</option>
+              <option value="sports">Sports Watches</option>
+              <option value="diving">Diving Watches</option>
+              <option value="gmt">GMT Watches</option>
+              <option value="chronograph">Chronographs</option>
+              <option value="limited">Limited Editions</option>
+            </select>
+            <p class="error-msg" id="collection-error">Please select a collection.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label class="form-label" for="date">Preferred Date</label>
+            <input type="date" id="date" class="form-input" required>
+            <p class="error-msg" id="date-error">Please select a date.</p>
+          </div>
+          <div>
+            <label class="form-label" for="time">Preferred Time</label>
+            <select id="time" class="form-input" required>
+              <option value="" disabled selected>Select time</option>
+              <option value="10:00">10:00</option>
+              <option value="11:00">11:00</option>
+              <option value="12:00">12:00</option>
+              <option value="14:00">14:00</option>
+              <option value="15:00">15:00</option>
+              <option value="16:00">16:00</option>
+              <option value="17:00">17:00</option>
+              <option value="18:00">18:00</option>
+            </select>
+            <p class="error-msg" id="time-error">Please select a time.</p>
+          </div>
+          <div>
+            <label class="form-label" for="boutique">Boutique</label>
+            <select id="boutique" class="form-input" required>
+              <option value="" disabled selected>Select boutique</option>
+              <option value="geneva">Geneva Flagship</option>
+              <option value="london">London Boutique</option>
+              <option value="newyork">New York Salon</option>
+            </select>
+            <p class="error-msg" id="boutique-error">Please select a boutique.</p>
+          </div>
+        </div>
+        <div>
+          <label class="form-label" for="request">Special Request</label>
+          <textarea id="request" class="form-input" rows="4" placeholder="Any specific models or requirements..."></textarea>
+        </div>
+        <div class="text-center pt-4">
+          <button type="submit" class="btn-primary">Request Appointment <i class="fas fa-arrow-right text-xs ml-2"></i></button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="pt-24 pb-12 px-6 md:px-12 lg:px-16 xl:px-20 border-t border-brand-gold/10">
+    <div class="max-w-[1440px] mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
+        <!-- Brand -->
+        <div class="col-span-2 md:col-span-4 lg:col-span-1 mb-4 lg:mb-0">
+          <span class="font-serif text-2xl font-light tracking-mega text-brand-gold block mb-6">CHRONOS</span>
+          <p class="text-xs text-brand-silver leading-relaxed max-w-xs">Swiss luxury timepieces crafted for generations. A heritage of precision since 1905.</p>
+          <!-- Social -->
+          <div class="flex gap-4 mt-6">
+            <a href="#" onclick="showToast('Opening Instagram...', 'fa-instagram');return false;" class="w-10 h-10 border border-brand-gold/20 flex items-center justify-center text-brand-silver hover:text-brand-gold hover:border-brand-gold/50 transition-colors" aria-label="Instagram"><i class="fab fa-instagram text-sm"></i></a>
+            <a href="#" onclick="showToast('Opening Facebook...', 'fa-facebook');return false;" class="w-10 h-10 border border-brand-gold/20 flex items-center justify-center text-brand-silver hover:text-brand-gold hover:border-brand-gold/50 transition-colors" aria-label="Facebook"><i class="fab fa-facebook-f text-sm"></i></a>
+            <a href="#" onclick="showToast('Opening YouTube...', 'fa-youtube');return false;" class="w-10 h-10 border border-brand-gold/20 flex items-center justify-center text-brand-silver hover:text-brand-gold hover:border-brand-gold/50 transition-colors" aria-label="YouTube"><i class="fab fa-youtube text-sm"></i></a>
+            <a href="#" onclick="showToast('Opening LinkedIn...', 'fa-linkedin');return false;" class="w-10 h-10 border border-brand-gold/20 flex items-center justify-center text-brand-silver hover:text-brand-gold hover:border-brand-gold/50 transition-colors" aria-label="LinkedIn"><i class="fab fa-linkedin-in text-sm"></i></a>
+          </div>
+        </div>
+
+        <!-- Collections -->
+        <div>
+          <h4 class="text-xs tracking-ultra uppercase text-brand-gold mb-6">Collections</h4>
+          <ul class="space-y-3">
+            <li><a href="#collections" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Dress Watches</a></li>
+            <li><a href="#collections" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Sports Watches</a></li>
+            <li><a href="#collections" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Diving Watches</a></li>
+            <li><a href="#collections" class="text-xs text-brand-silver hover:text-brand-white transition-colors">GMT Watches</a></li>
+            <li><a href="#collections" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Chronographs</a></li>
+            <li><a href="#collections" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Limited Editions</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h4 class="text-xs tracking-ultra uppercase text-brand-gold mb-6">Company</h4>
+          <ul class="space-y-3">
+            <li><a href="#heritage" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Our Heritage</a></li>
+            <li><a href="#craftsmanship" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Craftsmanship</a></li>
+            <li><a href="#" onclick="showToast('Sustainability page coming soon.', 'fa-leaf');return false;" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Sustainability</a></li>
+            <li><a href="#" onclick="showToast('Careers page coming soon.', 'fa-briefcase');return false;" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Careers</a></li>
+            <li><a href="#" onclick="showToast('Press page coming soon.', 'fa-newspaper');return false;" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Press</a></li>
+          </ul>
+        </div>
+
+        <!-- Services -->
+        <div>
+          <h4 class="text-xs tracking-ultra uppercase text-brand-gold mb-6">Services</h4>
+          <ul class="space-y-3">
+            <li><a href="#appointment" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Book Appointment</a></li>
+            <li><a href="#boutique" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Find a Boutique</a></li>
+            <li><a href="#" onclick="showToast('Servicing information coming soon.', 'fa-wrench');return false;" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Watch Servicing</a></li>
+            <li><a href="#" onclick="showToast('Warranty information coming soon.', 'fa-shield-halved');return false;" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Warranty</a></li>
+            <li><a href="#" onclick="showToast('Authentication guide coming soon.', 'fa-certificate');return false;" class="text-xs text-brand-silver hover:text-brand-white transition-colors">Authentication</a></li>
+          </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="col-span-2 md:col-span-2 lg:col-span-1">
+          <h4 class="text-xs tracking-ultra uppercase text-brand-gold mb-6">Newsletter</h4>
+          <p class="text-xs text-brand-silver mb-4 leading-relaxed">Receive exclusive updates on new collections, events, and the world of Chronos.</p>
+          <form id="newsletter-form" class="flex gap-0" novalidate>
+            <input type="email" id="newsletter-email" class="form-input flex-1 text-xs" placeholder="Your email" required style="border-right:none">
+            <button type="submit" class="px-4 bg-brand-gold text-brand-black text-xs font-medium tracking-wider uppercase hover:bg-brand-gold-light transition-colors cursor-pointer flex-shrink-0" aria-label="Subscribe">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
+          <p class="error-msg text-xs mt-2" id="newsletter-error">Please enter a valid email.</p>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="border-t border-brand-gold/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-[11px] text-brand-gray">&copy; 2024 Chronos SA. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="#" onclick="showToast('Privacy Policy page coming soon.', 'fa-lock');return false;" class="text-[11px] text-brand-gray hover:text-brand-silver transition-colors">Privacy Policy</a>
+          <a href="#" onclick="showToast('Terms of Service page coming soon.', 'fa-file-contract');return false;" class="text-[11px] text-brand-gray hover:text-brand-silver transition-colors">Terms of Service</a>
+          <a href="#" onclick="showToast('Cookie Settings opened.', 'fa-cookie-bite');return false;" class="text-[11px] text-brand-gray hover:text-brand-silver transition-colors">Cookie Settings</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button id="back-to-top" aria-label="Back to top">
+    <i class="fas fa-chevron-up text-sm"></i>
+  </button>
+
+  <script>
+    // ============================================
+    // Initialize Lenis Smooth Scroll
+    // ============================================
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      smoothWheel: true,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+
+    // Smooth scroll to anchors
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          lenis.scrollTo(target, { offset: -80 });
+          // Close mobile menu if open
+          closeMobileMenu();
+        }
+      });
+    });
+
+    // ============================================
+    // Custom Cursor
+    // ============================================
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      gsap.to(cursorDot, { x: mouseX - 3, y: mouseY - 3, duration: 0.1 });
+    });
+
+    function animateCursorRing() {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      cursorRing.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px)`;
+      requestAnimationFrame(animateCursorRing);
+    }
+    animateCursorRing();
+
+    // Hover effect on interactive elements
+    document.querySelectorAll('a, button, input, select, textarea, .collection-card, .showcase-card, .carousel-item').forEach(el => {
+      el.addEventListener('mouseenter', () => cursorRing.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursorRing.classList.remove('hovering'));
+    });
+
+    // ============================================
+    // Toast Notifications
+    // ============================================
+    function showToast(message, icon = 'fa-check-circle') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      requestAnimationFrame(() => { toast.classList.add('show'); });
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+      }, 3500);
+    }
+
+    // ============================================
+    // Loading Screen
+    // ============================================
+    const loader = document.getElementById('loader');
+    gsap.to('.loader-brand', { opacity: 1, duration: 1, ease: 'power2.out' });
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        gsap.to(loader, {
+          yPercent: -100,
+          duration: 1,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            loader.style.display = 'none';
+            startHeroAnimation();
+          }
+        });
+      }, 1800);
+    });
+
+    // ============================================
+    // Navigation
+    // ============================================
+    const nav = document.getElementById('main-nav');
+    let lastScroll = 0;
+
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.scrollY;
+      if (currentScroll > 100) {
+        nav.classList.add('scrolled', 'visible');
+      } else if (currentScroll < 50) {
+        nav.classList.remove('scrolled');
+      }
+      // Back to top visibility
+      const btt = document.getElementById('back-to-top');
+      if (currentScroll > 600) {
+        btt.classList.add('visible');
+      } else {
+        btt.classList.remove('visible');
+      }
+      lastScroll = currentScroll;
+    });
+
+    // Active nav link tracking
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+
+    ScrollTrigger.create({
+      trigger: document.body,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: () => {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 150;
+          if (window.scrollY >= sectionTop) {
+            current = section.getAttribute('id');
+          }
+        });
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('data-section') === current) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+
+    // Back to top
+    document.getElementById('back-to-top').addEventListener('click', () => {
+      lenis.scrollTo(0);
+    });
+
+    // ============================================
+    // Mobile Menu
+    // ============================================
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    let menuOpen = false;
+
+    mobileToggle.addEventListener('click', () => {
+      menuOpen ? closeMobileMenu() : openMobileMenu();
+    });
+
+    function openMobileMenu() {
+      menuOpen = true;
+      mobileMenu.classList.add('open');
+      document.getElementById('mobile-cta').style.opacity = '1';
+      document.getElementById('ham-1').style.transform = 'rotate(45deg) translateY(4px)';
+      document.getElementById('ham-2').style.opacity = '0';
+      document.getElementById('ham-3').style.transform = 'rotate(-45deg) translateY(-4px)';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      menuOpen = false;
+      mobileMenu.classList.remove('open');
+      document.getElementById('mobile-cta').style.opacity = '0';
+      document.getElementById('ham-1').style.transform = 'none';
+      document.getElementById('ham-2').style.opacity = '1';
+      document.getElementById('ham-3').style.transform = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Close mobile menu on link click
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    // Language selector
+    document.getElementById('lang-selector').addEventListener('click', () => {
+      showToast('Language selection: English (default)', 'fa-globe');
+    });
+
+    // ============================================
+    // Hero Animation
+    // ============================================
+    function startHeroAnimation() {
+      nav.classList.add('visible');
+
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      // Left side
+      tl.to('#hero-left .hero-fade', {
+        opacity: 1, y: 0, duration: 0.8,
+        stagger: 0.15
+      }, 0.2);
+
+      // Center watch
+      tl.to('#hero-center .hero-fade', {
+        opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out'
+      }, 0.4);
+
+      // Right side stats
+      tl.to('#hero-right .hero-fade', {
+        opacity: 1, x: 0, duration: 0.8,
+        stagger: 0.12
+      }, 0.6);
+
+      // Scroll indicator
+      tl.to('#scroll-ind', { opacity: 1, duration: 0.6 }, 1.2);
+
+      // Background text
+      gsap.fromTo('#hero-bg-text', { opacity: 0, scale: 0.9 }, {
+        opacity: 1, scale: 1, duration: 2, ease: 'power2.out', delay: 0.5
+      });
+
+      // Animate stat counters
+      document.querySelectorAll('#hero-right [data-target]').forEach(el => {
+        animateCounter(el, parseInt(el.getAttribute('data-target')), 2000, 1);
+      });
+    }
+
+    // ============================================
+    // Counter Animation
+    // ============================================
+    function animateCounter(el, target, duration, startDelay = 0) {
+      setTimeout(() => {
+        const startTime = performance.now();
+        const startVal = 0;
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(startVal + (target - startVal) * eased);
+          el.textContent = current;
+          if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+      }, startDelay * 1000);
+    }
+
+    // Craftsmanship counters on scroll
+    ScrollTrigger.create({
+      trigger: '#craftsmanship',
+      start: 'top 70%',
+      once: true,
+      onEnter: () => {
+        document.querySelectorAll('#craftsmanship [data-target]').forEach((el, i) => {
+          animateCounter(el, parseInt(el.getAttribute('data-target')), 2000, i * 0.2);
+        });
+      }
+    });
+
+    // ============================================
+    // Particles Canvas
+    // ============================================
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      const hero = document.getElementById('hero');
+      canvas.width = hero.offsetWidth;
+      canvas.height = hero.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 100;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedY = -(Math.random() * 0.5 + 0.1);
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.life = 0;
+        this.maxLife = Math.random() * 300 + 200;
+        this.gold = Math.random() > 0.6;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life++;
+        if (this.life > this.maxLife || this.y < -20) this.reset();
+      }
+      draw() {
+        const fadeIn = Math.min(this.life / 30, 1);
+        const fadeOut = Math.max(1 - (this.life - this.maxLife + 50) / 50, 0);
+        const alpha = this.opacity * fadeIn * (this.life > this.maxLife - 50 ? fadeOut : 1);
+        if (this.gold) {
+          ctx.fillStyle = `rgba(201, 169, 110, ${alpha})`;
+        } else {
+          ctx.fillStyle = `rgba(26, 107, 74, ${alpha})`;
+        }
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 60; i++) {
+      const p = new Particle();
+      p.y = Math.random() * canvas.height;
+      p.life = Math.random() * p.maxLife;
+      particles.push(p);
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // ============================================
+    // Hero Parallax
+    // ============================================
+    gsap.to('#hero-bg-text', {
+      yPercent: 30,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1
+      }
+    });
+
+    gsap.to('#watch-anim', {
+      yPercent: -15,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1
+      }
+    });
+
+    // ============================================
+    // Section Reveal Animations
+    // ============================================
+    gsap.utils.toArray('.section-reveal').forEach(el => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            once: true
+          }
+        }
+      );
+    });
+
+    // ============================================
+    // Watch Carousel
+    // ============================================
+    const track = document.getElementById('carousel-track');
+    const viewport = document.getElementById('carousel-viewport');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+    const progressBar = document.getElementById('carousel-progress');
+    const counter = document.getElementById('carousel-counter');
+    const items = track.querySelectorAll('.carousel-item');
+    const totalItems = items.length;
+
+    let carouselPos = 0;
+    let isDragging = false;
+    let startX = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let animationID = null;
+    let autoPlayInterval = null;
+    let currentIndex = 0;
+
+    function getItemWidth() {
+      return items[0].offsetWidth + 32; // width + gap
+    }
+
+    function getMaxScroll() {
+      return (getItemWidth() * totalItems) - viewport.offsetWidth;
+    }
+
+    function updateCarousel() {
+      track.style.transform = `translateX(${currentTranslate}px)`;
+      // Update active states
+      const center = (-currentTranslate + viewport.offsetWidth / 2);
+      items.forEach((item, i) => {
+        const itemCenter = i * getItemWidth() + getItemWidth() / 2;
+        if (Math.abs(center - itemCenter) < getItemWidth() / 2) {
+          item.classList.add('active');
+          currentIndex = i;
+        } else {
+          item.classList.remove('active');
+        }
+      });
+      // Update progress
+      const progress = Math.abs(currentTranslate) / getMaxScroll() * 100;
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+      counter.textContent = `${currentIndex + 1} / ${totalItems}`;
+    }
+
+    function goToNext() {
+      currentTranslate = Math.max(currentTranslate - getItemWidth(), -getMaxScroll());
+      prevTranslate = currentTranslate;
+      updateCarousel();
+    }
+
+    function goToPrev() {
+      currentTranslate = Math.min(currentTranslate + getItemWidth(), 0);
+      prevTranslate = currentTranslate;
+      updateCarousel();
+    }
+
+    prevBtn.addEventListener('click', () => { goToPrev(); resetAutoPlay(); });
+    nextBtn.addEventListener('click', () => { goToNext(); resetAutoPlay(); });
+
+    // Drag / Touch
+    function dragStart(e) {
+      isDragging = true;
+      startX = getPositionX(e);
+      lastX = startX;
+      lastTime = Date.now();
+      velocity = 0;
+      track.style.transition = 'none';
+      pauseAutoPlay();
+    }
+
+    function dragMove(e) {
+      if (!isDragging) return;
+      const currentX = getPositionX(e);
+      const diff = currentX - startX;
+      currentTranslate = prevTranslate + diff;
+      // Velocity calculation
+      const now = Date.now();
+      const dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (currentX - lastX) / dt * 16; // normalize to ~frame
+      }
+      lastX = currentX;
+      lastTime = now;
+      updateCarousel();
+    }
+
+    function dragEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      track.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+      // Apply momentum
+      const momentum = velocity * 8;
+      currentTranslate = prevTranslate + (currentTranslate - prevTranslate) + momentum;
+      // Clamp
+      currentTranslate = Math.max(Math.min(currentTranslate, 0), -getMaxScroll());
+      // Snap to nearest item
+      const nearestIndex = Math.round(Math.abs(currentTranslate) / getItemWidth());
+      currentTranslate = -nearestIndex * getItemWidth();
+      currentTranslate = Math.max(Math.min(currentTranslate, 0), -getMaxScroll());
+      prevTranslate = currentTranslate;
+      updateCarousel();
+      resetAutoPlay();
+    }
+
+    function getPositionX(e) {
+      return e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    }
+
+    track.addEventListener('mousedown', dragStart);
+    track.addEventListener('mousemove', dragMove);
+    track.addEventListener('mouseup', dragEnd);
+    track.addEventListener('mouseleave', dragEnd);
+    track.addEventListener('touchstart', dragStart, { passive: true });
+    track.addEventListener('touchmove', dragMove, { passive: true });
+    track.addEventListener('touchend', dragEnd);
+
+    // Prevent drag on images
+    track.querySelectorAll('img').forEach(img => {
+      img.addEventListener('dragstart', e => e.preventDefault());
+    });
+
+    // Auto play
+    function startAutoPlay() {
+      autoPlayInterval = setInterval(goToNext, 4000);
+    }
+    function pauseAutoPlay() {
+      clearInterval(autoPlayInterval);
+    }
+    function resetAutoPlay() {
+      pauseAutoPlay();
+      startAutoPlay();
+    }
+    startAutoPlay();
+
+    // Pause on hover
+    viewport.addEventListener('mouseenter', pauseAutoPlay);
+    viewport.addEventListener('mouseleave', startAutoPlay);
+
+    // ============================================
+    // Wishlist Toggle
+    // ============================================
+    function toggleWishlist(btn) {
+      btn.classList.toggle('active');
+      const icon = btn.querySelector('i');
+      if (btn.classList.contains('active')) {
+        icon.className = 'fas fa-heart text-sm';
+        showToast('Added to your wishlist.', 'fa-heart');
+      } else {
+        icon.className = 'far fa-heart text-sm';
+        showToast('Removed from your wishlist.', 'fa-heart-broken');
+      }
+    }
+
+    // ============================================
+    // Appointment Form Validation
+    // ============================================
+    const appointmentForm = document.getElementById('appointment-form');
+
+    // Set min date to today
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+
+    appointmentForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let valid = true;
+
+      // Full Name
+      const name = document.getElementById('fullName');
+      if (name.value.trim().length < 2) {
+        showFieldError(name, 'fullName-error');
+        valid = false;
+      } else {
+        clearFieldError(name, 'fullName-error');
+      }
+
+      // Email
+      const email = document.getElementById('email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.value)) {
+        showFieldError(email, 'email-error');
+        valid = false;
+      } else {
+        clearFieldError(email, 'email-error');
+      }
+
+      // Phone
+      const phone = document.getElementById('phone');
+      const phoneClean = phone.value.replace(/[\s\-\(\)\+]/g, '');
+      if (phoneClean.length < 7) {
+        showFieldError(phone, 'phone-error');
+        valid = false;
+      } else {
+        clearFieldError(phone, 'phone-error');
+      }
+
+      // Collection
+      const collection = document.getElementById('collection');
+      if (!collection.value) {
+        showFieldError(collection, 'collection-error');
+        valid = false;
+      } else {
+        clearFieldError(collection, 'collection-error');
+      }
+
+      // Date
+      const date = document.getElementById('date');
+      if (!date.value) {
+        showFieldError(date, 'date-error');
+        valid = false;
+      } else {
+        clearFieldError(date, 'date-error');
+      }
+
+      // Time
+      const time = document.getElementById('time');
+      if (!time.value) {
+        showFieldError(time, 'time-error');
+        valid = false;
+      } else {
+        clearFieldError(time, 'time-error');
+      }
+
+      // Boutique
+      const boutique = document.getElementById('boutique');
+      if (!boutique.value) {
+        showFieldError(boutique, 'boutique-error');
+        valid = false;
+      } else {
+        clearFieldError(boutique, 'boutique-error');
+      }
+
+      if (valid) {
+        showToast(`Appointment requested for ${name.value.trim()} at our ${boutique.options[boutique.selectedIndex].text}. We will confirm via email shortly.`, 'fa-calendar-check');
+        appointmentForm.reset();
+      }
+    });
+
+    function showFieldError(input, errorId) {
+      input.classList.add('error');
+      document.getElementById(errorId).classList.add('show');
+    }
+
+    function clearFieldError(input, errorId) {
+      input.classList.remove('error');
+      document.getElementById(errorId).classList.remove('show');
+    }
+
+    // Clear errors on input
+    appointmentForm.querySelectorAll('.form-input').forEach(input => {
+      input.addEventListener('input', () => {
+        input.classList.remove('error');
+        const errorEl = input.parentElement.querySelector('.error-msg');
+        if (errorEl) errorEl.classList.remove('show');
+      });
+    });
+
+    // ============================================
+    // Newsletter Form
+    // ============================================
+    document.getElementById('newsletter-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const emailInput = document.getElementById('newsletter-email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailInput.value)) {
+        document.getElementById('newsletter-error').classList.add('show');
+        emailInput.classList.add('error');
+      } else {
+        document.getElementById('newsletter-error').classList.remove('show');
+        emailInput.classList.remove('error');
+        showToast('Thank you for subscribing to the Chronos newsletter.', 'fa-envelope');
+        emailInput.value = '';
+      }
+    });
+
+    document.getElementById('newsletter-email').addEventListener('input', function() {
+      this.classList.remove('error');
+      document.getElementById('newsletter-error').classList.remove('show');
+    });
+
+    // ============================================
+    // Timeline Scroll Animation
+    // ============================================
+    gsap.utils.toArray('.timeline-item').forEach((item, i) => {
+      gsap.fromTo(item,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1, y: 0, duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 80%',
+            once: true
+          }
+        }
+      );
+    });
+
+    // ============================================
+    // Showcase cards stagger on scroll
+    // ============================================
+    ScrollTrigger.create({
+      trigger: '#showcase-grid',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        gsap.fromTo('#showcase-grid .showcase-card',
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1, y: 0, duration: 0.8,
+            stagger: 0.15,
+            ease: 'power3.out'
+          }
+        );
+      }
+    });
+
+    // ============================================
+    // Collection cards stagger on scroll
+    // ============================================
+    ScrollTrigger.create({
+      trigger: '#collections .grid',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        gsap.fromTo('#collections .collection-card',
+          { opacity: 0, y: 50, scale: 0.97 },
+          {
+            opacity: 1, y: 0, scale: 1, duration: 0.8,
+            stagger: 0.1,
+            ease: 'power3.out'
+          }
+        );
+      }
+    });
+
+    // ============================================
+    // Keyboard Accessibility
+    // ============================================
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuOpen) {
+        closeMobileMenu();
+      }
+    });
+
+    // Make all buttons focusable
+    document.querySelectorAll('.wishlist-btn, #back-to-top').forEach(btn => {
+      if (!btn.getAttribute('tabindex')) btn.setAttribute('tabindex', '0');
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          btn.click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
